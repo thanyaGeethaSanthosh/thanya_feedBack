@@ -10,6 +10,7 @@ const MIME_TYPES = {
   json: 'application/json',
   gif: 'image/gif',
   jpg: 'image/jpeg',
+  png: 'image/png',
   pdf: 'application/pdf'
 };
 
@@ -26,6 +27,32 @@ const serveStaticPage = function(req, res, next) {
   const extension = path.split('.').pop();
   res.setHeader('Content-Type', MIME_TYPES[extension]);
   res.end(content);
+};
+
+const decodeUriText = function(encodedText) {
+  return decodeURIComponent(encodedText.replace(/\+/g, ' '));
+};
+
+const pickupParams = (query, keyValue) => {
+  const [key, value] = keyValue.split('=');
+  query[key] = decodeUriText(value);
+  return query;
+};
+
+const registerNewUser = function(req, res, next) {
+  if (req.url !== '/register') {
+    next();
+    return;
+  }
+  const body = req.body.split('&').reduce(pickupParams, {});
+  const users =
+    JSON.parse(fs.readFileSync('./assets/users.json', 'utf8')) || [];
+  users.push(body);
+  const usersText = JSON.stringify(users);
+  fs.writeFileSync('./assets/users.json', usersText, 'utf8');
+  res.setHeader('location', 'index.html');
+  res.writeHead(301);
+  res.end();
 };
 
 const notFound = function(req, res) {
@@ -52,6 +79,7 @@ const app = new App();
 app.use(readBody);
 
 app.get('', serveStaticPage);
+app.post('/register', registerNewUser);
 
 app.get('', notFound);
 app.post('', notFound);
