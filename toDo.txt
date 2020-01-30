@@ -1,3 +1,4 @@
+✔︎ UI
 * index.html
  ->should enter userID to login 
  ->New users can head to register.html and giveFeedBack.html
@@ -9,7 +10,7 @@
 * giveFeedBack.html
  ->here user can give feedBack
 
-* feedBack.html
+* showFeedBack.html
   ->feedBack is shown in this page
   ->Has a link to login page (logout)
   ->Has a link to giveFeedBack page

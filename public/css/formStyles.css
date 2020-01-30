@@ -1,0 +1,49 @@
+.formBox {
+  padding: 10px 10px;
+  height: 50%;
+  width: 30%;
+  margin: auto;
+  margin-top: 20%;
+}
+
+input[type='text'] {
+  width: 100%;
+  padding: 5px;
+  margin: 10px 5px;
+  box-sizing: border-box;
+}
+
+input[type='submit'] {
+  width: 50%;
+  padding: 5px;
+  margin: 10px 5px;
+}
+
+body {
+  background-size: cover;
+}
+
+textarea {
+  padding: 5px;
+  margin: 10px 5px;
+}
+
+.transparent {
+  background: transparent;
+}
+
+.marginUp {
+  margin-top: 25%;
+}
+
+a:link {
+  color: rgb(98, 209, 65);
+}
+
+a:visited {
+  color: rgb(66, 138, 66);
+}
+
+a:hover {
+  color: rgb(226, 149, 233);
+}
