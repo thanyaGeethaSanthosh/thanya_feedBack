@@ -1,6 +1,9 @@
 const fs = require('fs');
 
 const { App } = require('./app');
+const { loadTemplate } = require('./lib/viewTemplate');
+const userSessions = [];
+let currUser = '';
 
 const MIME_TYPES = {
   txt: 'text/plain',
@@ -45,14 +48,79 @@ const registerNewUser = function(req, res, next) {
     return;
   }
   const body = req.body.split('&').reduce(pickupParams, {});
-  const users =
-    JSON.parse(fs.readFileSync('./assets/users.json', 'utf8')) || [];
+  const users = JSON.parse(fs.readFileSync('./assets/users.json', 'utf8'));
   users.push(body);
   const usersText = JSON.stringify(users);
   fs.writeFileSync('./assets/users.json', usersText, 'utf8');
   res.setHeader('location', 'index.html');
   res.writeHead(301);
   res.end();
+};
+
+const loginUser = function(req, res, next) {
+  if (req.url !== '/login') {
+    next();
+    return;
+  }
+  const body = req.body.split('&').reduce(pickupParams, {});
+  const users = JSON.parse(fs.readFileSync('./assets/users.json', 'utf8'));
+  const userExists = ({ userId, userName }) =>
+    body.userId === userId && body.userName === userName;
+  if (users.some(userExists)) {
+    const sessionId = `${new Date().getTime()}`;
+    userSessions.push({ userName: body.userName, sessionId });
+    res.setHeader('Set-Cookie', `sessionId=${sessionId}`);
+    res.setHeader('location', 'feedBacks');
+    res.writeHead(301);
+    res.end();
+    return;
+  }
+  res.setHeader('location', 'index.html');
+  res.writeHead(301);
+  res.end();
+};
+
+const isValidSession = function(userSessions, cookie) {
+  const userSession = cookie.split('=');
+  return userSessions.some(({ userName, sessionId }) => {
+    if (sessionId === userSession[1]) {
+      currUser = userName;
+      return true;
+    }
+    return false;
+  });
+};
+
+const getFeedBackPage = function(req, res, next) {
+  console.warn(userSessions, req.headers.cookie);
+
+  if (req.url !== '/feedBacks') {
+    next();
+    return;
+  }
+  const documentFolder = `${__dirname}/assets/feedBacks`;
+  console.warn(isValidSession(userSessions, req.headers['cookie']));
+
+  if (!isValidSession(userSessions, req.headers['cookie'])) {
+    res.setHeader('location', 'sessionExpired.html');
+    res.writeHead(301);
+    res.end();
+    return;
+  }
+  const path = `${documentFolder}/${currUser}.json`;
+  let userFeedBacks = [];
+  if (fs.existsSync(path)) {
+    userFeedBacks = JSON.parse(
+      fs.readFileSync(`${documentFolder}/${currUser}.json`, 'utf8')
+    );
+  }
+  const content = loadTemplate('showFeedBack.html', {
+    feedBack: JSON.stringify(userFeedBacks)
+  });
+
+  res.setHeader('Content-Type', MIME_TYPES.html);
+  res.end(content);
+  return;
 };
 
 const notFound = function(req, res) {
@@ -80,6 +148,8 @@ app.use(readBody);
 
 app.get('', serveStaticPage);
 app.post('/register', registerNewUser);
+app.post('/login', loginUser);
+app.get('/feedBacks', getFeedBackPage);
 
 app.get('', notFound);
 app.post('', notFound);
