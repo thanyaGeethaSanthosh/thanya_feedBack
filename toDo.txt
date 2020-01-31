@@ -1,18 +1,19 @@
 ✔︎ UI
-* index.html
- ->should enter userID to login 
- ->New users can head to register.html and giveFeedBack.html
+✔︎ index.html
+ ✔︎should enter userID to login 
+ ✔︎New users can head to register.html and giveFeedBack.html
 
-* register.html
- ->input to register userID of a new user
- ->after registration go back to login page
+✔︎ register.html
+ ✔︎input to register userID of a new user
+ ✔︎after registration go back to login page
 
 * giveFeedBack.html
  ->here user can give feedBack
 
-* showFeedBack.html
+✔︎ showFeedBack.html
+ ✔︎ add session
   ->feedBack is shown in this page
-  ->Has a link to login page (logout)
+  ->Has a link to login page (logout which will delete session id)
   ->Has a link to giveFeedBack page
 
  % later add password
